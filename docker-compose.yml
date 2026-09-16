@@ -65,6 +65,13 @@ services:
     environment:
       PMA_HOST: mysql_db
       PMA_PORT: 3306
+      # Login automático (solo desarrollo)
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      # Almacenamiento de configuración (Diseñador, relaciones) -> init/00_phpmyadmin_storage.sql
+      PMA_PMADB: phpmyadmin
+      PMA_CONTROLUSER: pma
+      PMA_CONTROLPASS: pmapass
     ports:
       - "${PHPMYADMIN_PORT}:80"
     restart: unless-stopped

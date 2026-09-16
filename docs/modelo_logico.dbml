@@ -1,0 +1,239 @@
+Table pelicula [headercolor: #175e7a] {
+	id_pelicula int [ pk, increment ]
+	titulo varchar(150) [ not null ]
+	anio_estreno int [ not null, note: 'CHECK anio_estreno >= 1888' ]
+	duracion_min int [ not null, note: 'CHECK duracion_min > 0' ]
+	clasificacion varchar(10) [ not null, note: 'Clasificación por edades: TP, +7, +12, +15, +18' ]
+	descripcion text
+	idioma_original varchar(50) [ not null ]
+}
+
+Table genero [headercolor: #175e7a] {
+	id_genero int [ pk, increment ]
+	nombre varchar(50) [ not null, unique ]
+	descripcion varchar(255)
+}
+
+Table actor [headercolor: #175e7a] {
+	id_actor int [ pk, increment ]
+	nombres varchar(80) [ not null ]
+	apellidos varchar(80) [ not null ]
+	fecha_nacimiento date
+	nacionalidad varchar(60)
+}
+
+Table director [headercolor: #175e7a] {
+	id_director int [ pk, increment ]
+	nombres varchar(80) [ not null ]
+	apellidos varchar(80) [ not null ]
+	fecha_nacimiento date
+	nacionalidad varchar(60)
+}
+
+Table pelicula_genero [headercolor: #175e7a] {
+	id_pelicula int [ pk, not null ]
+	id_genero int [ pk, not null ]
+}
+
+Table pelicula_actor [headercolor: #175e7a] {
+	id_pelicula int [ pk, not null ]
+	id_actor int [ pk, not null ]
+	personaje varchar(100) [ note: 'Nombre del personaje interpretado' ]
+}
+
+Table pelicula_director [headercolor: #175e7a] {
+	id_pelicula int [ pk, not null ]
+	id_director int [ pk, not null ]
+}
+
+Table copia [headercolor: #175e7a] {
+	id_copia int [ pk, increment ]
+	codigo_copia varchar(20) [ not null, unique, note: 'Ej: DVD-00015, BR-00021' ]
+	id_pelicula int [ not null ]
+	formato formato_copia [ not null ]
+	fecha_adquisicion date [ not null ]
+	estado estado_fisico [ not null, default: EXCELENTE ]
+	disponible boolean [ not null, default: true, note: 'false mientras esté alquilada. Regla: no alquilable si estado IN (DANADO, FUERA_DE_SERVICIO)' ]
+}
+
+Table cliente [headercolor: #175e7a] {
+	id_cliente int [ pk, increment ]
+	identificacion varchar(20) [ not null, unique ]
+	nombres varchar(80) [ not null ]
+	apellidos varchar(80) [ not null ]
+	fecha_nacimiento date [ not null ]
+	direccion varchar(150)
+	telefono varchar(20)
+	correo varchar(120) [ not null, unique ]
+	fecha_registro date [ not null, default: CURRENT_DATE ]
+	estado estado_cliente [ not null, default: ACTIVO, note: 'SUSPENDIDO no puede alquilar' ]
+}
+
+Table empleado [headercolor: #175e7a] {
+	id_empleado int [ pk, increment ]
+	identificacion varchar(20) [ not null, unique ]
+	nombres varchar(80) [ not null ]
+	apellidos varchar(80) [ not null ]
+	cargo cargo_empleado [ not null ]
+	telefono varchar(20)
+	correo varchar(120) [ unique ]
+	fecha_contratacion date [ not null ]
+	estado estado_empleado [ not null, default: ACTIVO ]
+}
+
+Table alquiler [headercolor: #175e7a] {
+	id_alquiler int [ pk, increment ]
+	id_cliente int [ not null ]
+	id_empleado int [ not null, note: 'Empleado que registra' ]
+	fecha_alquiler date [ not null ]
+	fecha_prevista_devolucion date [ not null, note: 'CHECK >= fecha_alquiler' ]
+	estado estado_alquiler [ not null, default: ACTIVO ]
+	valor_total decimal(10,2) [ not null, default: 0, note: 'CHECK >= 0. Suma de precios del detalle' ]
+}
+
+Table detalle_alquiler [headercolor: #175e7a] {
+	id_detalle int [ pk, increment ]
+	id_alquiler int [ not null ]
+	id_copia int [ not null ]
+	precio_alquiler decimal(10,2) [ not null, note: 'CHECK >= 0' ]
+	estado_devolucion estado_devolucion [ not null, default: PENDIENTE ]
+
+	indexes {
+		(id_alquiler, id_copia) [ unique ]
+	}
+
+	Note: 'Regla 4: una copia solo puede estar en UN detalle con estado PENDIENTE a la vez'
+}
+
+Table devolucion [headercolor: #175e7a] {
+	id_devolucion int [ pk, increment ]
+	id_detalle int [ not null, unique ]
+	id_empleado int [ not null, note: 'Empleado que recibe' ]
+	fecha_real_devolucion date [ not null ]
+	dias_retraso int [ not null, default: 0, note: 'CHECK >= 0. Calculado: fecha_real - fecha_prevista' ]
+	estado_fisico_entrega estado_fisico [ not null, note: 'Estado con el que regresa (puede diferir del de salida)' ]
+	observaciones text
+	danios text
+}
+
+Table multa [headercolor: #175e7a] {
+	id_multa int [ pk, increment ]
+	id_detalle int [ not null, note: 'Desde aquí se obtiene alquiler y cliente' ]
+	motivo motivo_multa [ not null ]
+	valor decimal(10,2) [ not null, note: 'CHECK >= 0' ]
+	fecha date [ not null ]
+	estado estado_multa [ not null, default: PENDIENTE ]
+}
+
+Table pago [headercolor: #175e7a] {
+	id_pago int [ pk, increment ]
+	id_cliente int [ not null ]
+	id_empleado int [ not null, note: 'Empleado que recibe el pago' ]
+	fecha datetime [ not null ]
+	valor_total decimal(10,2) [ not null, note: 'CHECK >= 0. Suma de detalle_pago' ]
+	metodo_pago metodo_pago [ not null ]
+}
+
+Table detalle_pago [headercolor: #175e7a] {
+	id_detalle_pago int [ pk, increment ]
+	id_pago int [ not null ]
+	concepto concepto_pago [ not null ]
+	id_alquiler int
+	id_multa int
+	valor decimal(10,2) [ not null, note: 'CHECK >= 0' ]
+
+	Note: 'CHECK (concepto = ALQUILER AND id_alquiler IS NOT NULL AND id_multa IS NULL) OR (concepto = MULTA AND id_multa IS NOT NULL AND id_alquiler IS NULL)'
+}
+
+Table reserva [headercolor: #175e7a] {
+	id_reserva int [ pk, increment ]
+	id_cliente int [ not null ]
+	id_pelicula int [ not null, note: 'Se reserva la película, no una copia' ]
+	fecha_reserva datetime [ not null ]
+	fecha_vencimiento datetime [ not null, note: 'CHECK > fecha_reserva' ]
+	estado estado_reserva [ not null, default: PENDIENTE ]
+}
+
+Ref fk_pelicula_id_pelicula_pelicula_genero {
+	pelicula.id_pelicula < pelicula_genero.id_pelicula [ delete: no action, update: no action ]
+}
+
+Ref fk_genero_id_genero_pelicula_genero {
+	genero.id_genero < pelicula_genero.id_genero [ delete: no action, update: no action ]
+}
+
+Ref fk_pelicula_id_pelicula_pelicula_actor {
+	pelicula.id_pelicula < pelicula_actor.id_pelicula [ delete: no action, update: no action ]
+}
+
+Ref fk_actor_id_actor_pelicula_actor {
+	actor.id_actor < pelicula_actor.id_actor [ delete: no action, update: no action ]
+}
+
+Ref fk_pelicula_id_pelicula_pelicula_director {
+	pelicula.id_pelicula < pelicula_director.id_pelicula [ delete: no action, update: no action ]
+}
+
+Ref fk_director_id_director_pelicula_director {
+	director.id_director < pelicula_director.id_director [ delete: no action, update: no action ]
+}
+
+Ref fk_pelicula_id_pelicula_copia {
+	pelicula.id_pelicula < copia.id_pelicula [ delete: no action, update: no action ]
+}
+
+Ref fk_cliente_id_cliente_alquiler {
+	cliente.id_cliente < alquiler.id_cliente [ delete: no action, update: no action ]
+}
+
+Ref fk_empleado_id_empleado_alquiler {
+	empleado.id_empleado < alquiler.id_empleado [ delete: no action, update: no action ]
+}
+
+Ref fk_alquiler_id_alquiler_detalle_alquiler {
+	alquiler.id_alquiler < detalle_alquiler.id_alquiler [ delete: no action, update: no action ]
+}
+
+Ref fk_copia_id_copia_detalle_alquiler {
+	copia.id_copia < detalle_alquiler.id_copia [ delete: no action, update: no action ]
+}
+
+Ref fk_detalle_alquiler_id_detalle_devolucion {
+	detalle_alquiler.id_detalle - devolucion.id_detalle [ delete: no action, update: no action ]
+}
+
+Ref fk_empleado_id_empleado_devolucion {
+	empleado.id_empleado < devolucion.id_empleado [ delete: no action, update: no action ]
+}
+
+Ref fk_detalle_alquiler_id_detalle_multa {
+	detalle_alquiler.id_detalle < multa.id_detalle [ delete: no action, update: no action ]
+}
+
+Ref fk_cliente_id_cliente_pago {
+	cliente.id_cliente < pago.id_cliente [ delete: no action, update: no action ]
+}
+
+Ref fk_empleado_id_empleado_pago {
+	empleado.id_empleado < pago.id_empleado [ delete: no action, update: no action ]
+}
+
+Ref fk_pago_id_pago_detalle_pago {
+	pago.id_pago < detalle_pago.id_pago [ delete: no action, update: no action ]
+}
+
+Ref fk_alquiler_id_alquiler_detalle_pago {
+	alquiler.id_alquiler < detalle_pago.id_alquiler [ delete: no action, update: no action ]
+}
+
+Ref fk_multa_id_multa_detalle_pago {
+	multa.id_multa < detalle_pago.id_multa [ delete: no action, update: no action ]
+}
+
+Ref fk_cliente_id_cliente_reserva {
+	cliente.id_cliente < reserva.id_cliente [ delete: no action, update: no action ]
+}
+
+Ref fk_pelicula_id_pelicula_reserva {
+	pelicula.id_pelicula < reserva.id_pelicula [ delete: no action, update: no action ]
+}
