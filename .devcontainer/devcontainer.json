@@ -1,5 +1,5 @@
 {
-    "name": "PostgreSQL Development Environment",
+    "name": "MovieBox MySQL Development Environment",
     "dockerComposeFile": "../docker-compose.yml",
     "service": "workspace",
     "workspaceFolder": "/workspace",
@@ -11,8 +11,9 @@
             "extensions": [
                 "cweijan.vscode-database-client2",
                 "mtxr.sqltools",
-                "mtxr.sqltools-driver-pg",
-                "redhat.vscode-yaml"
+                "mtxr.sqltools-driver-mysql",
+                "redhat.vscode-yaml",
+                "pomdtr.excalidraw-editor"
             ]
         }
     },
@@ -20,7 +21,7 @@
         "ghcr.io/devcontainers/features/github-cli:1": {}
     },
     "forwardPorts": [
-        5433,
+        3307,
         8081
     ]
 }

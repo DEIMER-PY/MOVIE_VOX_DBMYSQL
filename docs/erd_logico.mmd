@@ -1,0 +1,153 @@
+erDiagram
+    pelicula {
+        int id_pelicula PK
+        varchar_150 titulo
+        int anio_estreno
+        int duracion_min
+        varchar_10 clasificacion
+        text descripcion
+        varchar_50 idioma_original
+    }
+    genero {
+        int id_genero PK
+        varchar_50 nombre UK
+        varchar_255 descripcion
+    }
+    actor {
+        int id_actor PK
+        varchar_80 nombres
+        varchar_80 apellidos
+        date fecha_nacimiento
+        varchar_60 nacionalidad
+    }
+    director {
+        int id_director PK
+        varchar_80 nombres
+        varchar_80 apellidos
+        date fecha_nacimiento
+        varchar_60 nacionalidad
+    }
+    pelicula_genero {
+        int id_pelicula PK,FK
+        int id_genero PK,FK
+    }
+    pelicula_actor {
+        int id_pelicula PK,FK
+        int id_actor PK,FK
+        varchar_100 personaje
+    }
+    pelicula_director {
+        int id_pelicula PK,FK
+        int id_director PK,FK
+    }
+    copia {
+        int id_copia PK
+        varchar_20 codigo_copia UK
+        int id_pelicula FK
+        formato_copia formato
+        date fecha_adquisicion
+        estado_fisico estado
+        boolean disponible
+    }
+    cliente {
+        int id_cliente PK
+        varchar_20 identificacion UK
+        varchar_80 nombres
+        varchar_80 apellidos
+        date fecha_nacimiento
+        varchar_150 direccion
+        varchar_20 telefono
+        varchar_120 correo UK
+        date fecha_registro
+        estado_cliente estado
+    }
+    empleado {
+        int id_empleado PK
+        varchar_20 identificacion UK
+        varchar_80 nombres
+        varchar_80 apellidos
+        cargo_empleado cargo
+        varchar_20 telefono
+        varchar_120 correo UK
+        date fecha_contratacion
+        estado_empleado estado
+    }
+    alquiler {
+        int id_alquiler PK
+        int id_cliente FK
+        int id_empleado FK
+        date fecha_alquiler
+        date fecha_prevista_devolucion
+        estado_alquiler estado
+        decimal_10_2 valor_total
+    }
+    detalle_alquiler {
+        int id_detalle PK
+        int id_alquiler FK
+        int id_copia FK
+        decimal_10_2 precio_alquiler
+        estado_devolucion estado_devolucion
+    }
+    devolucion {
+        int id_devolucion PK
+        int id_detalle FK,UK
+        int id_empleado FK
+        date fecha_real_devolucion
+        int dias_retraso
+        estado_fisico estado_fisico_entrega
+        text observaciones
+        text danios
+    }
+    multa {
+        int id_multa PK
+        int id_detalle FK
+        motivo_multa motivo
+        decimal_10_2 valor
+        date fecha
+        estado_multa estado
+    }
+    pago {
+        int id_pago PK
+        int id_cliente FK
+        int id_empleado FK
+        datetime fecha
+        decimal_10_2 valor_total
+        metodo_pago metodo_pago
+    }
+    detalle_pago {
+        int id_detalle_pago PK
+        int id_pago FK
+        concepto_pago concepto
+        int id_alquiler FK
+        int id_multa FK
+        decimal_10_2 valor
+    }
+    reserva {
+        int id_reserva PK
+        int id_cliente FK
+        int id_pelicula FK
+        datetime fecha_reserva
+        datetime fecha_vencimiento
+        estado_reserva estado
+    }
+    pelicula ||--o{ pelicula_genero : "id_pelicula"
+    genero ||--o{ pelicula_genero : "id_genero"
+    pelicula ||--o{ pelicula_actor : "id_pelicula"
+    actor ||--o{ pelicula_actor : "id_actor"
+    pelicula ||--o{ pelicula_director : "id_pelicula"
+    director ||--o{ pelicula_director : "id_director"
+    pelicula ||--o{ copia : "id_pelicula"
+    cliente ||--o{ alquiler : "id_cliente"
+    empleado ||--o{ alquiler : "id_empleado"
+    alquiler ||--o{ detalle_alquiler : "id_alquiler"
+    copia ||--o{ detalle_alquiler : "id_copia"
+    detalle_alquiler ||--o| devolucion : "id_detalle"
+    empleado ||--o{ devolucion : "id_empleado"
+    detalle_alquiler ||--o{ multa : "id_detalle"
+    cliente ||--o{ pago : "id_cliente"
+    empleado ||--o{ pago : "id_empleado"
+    pago ||--o{ detalle_pago : "id_pago"
+    alquiler |o--o{ detalle_pago : "id_alquiler"
+    multa |o--o{ detalle_pago : "id_multa"
+    cliente ||--o{ reserva : "id_cliente"
+    pelicula ||--o{ reserva : "id_pelicula"

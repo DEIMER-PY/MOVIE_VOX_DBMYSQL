@@ -65,7 +65,7 @@ Table cliente [headercolor: #175e7a] {
 	direccion varchar(150)
 	telefono varchar(20)
 	correo varchar(120) [ not null, unique ]
-	fecha_registro date [ not null, default: CURRENT_DATE ]
+	fecha_registro date [ not null, default: `CURRENT_DATE` ]
 	estado estado_cliente [ not null, default: ACTIVO, note: 'SUSPENDIDO no puede alquilar' ]
 }
 
@@ -99,7 +99,7 @@ Table detalle_alquiler [headercolor: #175e7a] {
 	estado_devolucion estado_devolucion [ not null, default: PENDIENTE ]
 
 	indexes {
-		(id_alquiler, id_copia) [ unique ]
+		(id_alquiler, id_copia) [ unique, name: 'uq_detalle_alquiler_copia' ]
 	}
 
 	Note: 'Regla 4: una copia solo puede estar en UN detalle con estado PENDIENTE a la vez'

@@ -1,0 +1,12 @@
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Editores / herramientas
+.vscode/
+.idea/
+.claude/
+
+# Respaldos locales de la base de datos
+backup/
+*.sql.gz
