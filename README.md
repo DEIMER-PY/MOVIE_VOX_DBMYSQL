@@ -91,7 +91,7 @@ El resultado es un entorno **reproducible con Docker** que cualquier persona pue
 MOVIE_VOX_DBMYSQL/
 ├── README.md                          ← este documento
 ├── docker-compose.yml                 ← MySQL + phpMyAdmin + workspace
-├── .env                               ← credenciales y puertos (desarrollo)
+├── .env.example                       ← plantilla de credenciales y puertos locales
 ├── .gitattributes                     ← finales de línea LF (portabilidad Win/Mac/Linux)
 ├── .gitignore
 ├── .devcontainer/
@@ -650,9 +650,15 @@ flowchart TB
 | `phpmyadmin` | `phpmyadmin:latest` | **8081** | Administración web. Login automático y Diseñador habilitado. |
 | `workspace` | build de `.devcontainer/Dockerfile` | — | Contenedor de desarrollo para VS Code con `mysql` CLI. |
 
-Variables en [`.env`](.env): `MYSQL_ROOT_PASSWORD=root2026`, `MYSQL_DATABASE=bkddb`, `MYSQL_USER=bkseducate`, `MYSQL_PASSWORD=bkseducate2026`, `MYSQL_PORT=3307`, `PHPMYADMIN_PORT=8081`.
+Antes de iniciar los contenedores, crea tu configuración local:
 
-> ⚠️ Son credenciales de **desarrollo local**. En un entorno real irían fuera del repositorio.
+```bash
+cp .env.example .env
+```
+
+La plantilla [`.env.example`](.env.example) incluye valores reproducibles para desarrollo local. El archivo `.env` queda ignorado por Git para que cada entorno pueda usar credenciales propias.
+
+> ⚠️ Los valores de la plantilla son solo para **desarrollo local**. Cámbialos antes de usar el proyecto en una red compartida o en cualquier entorno publicado.
 
 ## 🚀 13. Instalación paso a paso
 

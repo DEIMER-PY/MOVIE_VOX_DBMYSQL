@@ -7,6 +7,11 @@ Thumbs.db
 .idea/
 .claude/
 
+# Configuración local
+.env
+.env.*
+!.env.example
+
 # Respaldos locales de la base de datos
 backup/
 *.sql.gz
